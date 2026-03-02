@@ -1,64 +1,96 @@
 #include <raylib.h>
-struct enemy{
-    Vector2 position;
-    Vector2 direction;
-    float speed;
-    Color color;
-};
+using namespace std;
 
 int main(){
 
-    enemy ghost;
-    ghost.position = {150, 200};
-    ghost.direction = {1,1};
-    ghost.speed = 200;
-    ghost.color = RED;
+    const int screenwidth = 500, screenheight = 500;
 
-    int boxsize = 30;
-    int screenwidth =500;
-    int screenheight = 500;
+    const int tilesize = 50;
 
-    InitWindow(screenwidth,screenheight, "20MIN RAYLIBS CHALLENGE");
+    int rows = screenwidth/tilesize;
+    int cols = screenheight/tilesize;
+
+    Vector2 player= 
+    {
+        50+tilesize,
+        50+tilesize
+    };
+
+    float speed = 200.0f;
+
+    //to remember; 1 for road, 0 for land, 2 for water
+    int Citymap[rows][cols] = 
+    {
+    {2,2,2,2,2,2,2,2,2,2},
+    {2,1,1,1,1,1,1,1,1,2},
+    {2,1,1,1,1,1,1,1,1,2},
+    {2,1,0,0,0,0,0,0,1,2},
+    {2,1,0,0,0,0,0,0,1,2},
+    {2,1,0,0,0,0,0,0,1,2},
+    {2,1,0,0,0,0,0,0,1,2},
+    {2,1,1,1,1,1,1,1,1,2},
+    {2,1,1,1,1,1,1,1,1,2},
+    {2,2,2,2,2,2,2,2,2,2}
+    };
+
+    InitWindow(screenwidth, screenheight, "Understanding Maps in Raylibs and Cpp");
+    InitAudioDevice();
     SetTargetFPS(60);
+    SetConfigFlags(FLAG_VSYNC_HINT);
 
     while(!WindowShouldClose()){
+    float dt = GetFrameTime();
 
-        float dt = GetFrameTime();
-
-
-        
-        ghost.position.x += ghost.direction.x * (ghost.speed*dt);
-        ghost.position.y += ghost.direction.y * (ghost.speed*dt);
-
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-
-        DrawRectangle(ghost.position.x, ghost.position.y, 
-        30, 30, ghost.color);
-
-        if(ghost.position.x + boxsize >= 500){
-        ghost.position.x = 500-boxsize;
-        ghost.direction.x *= -1;
-        ghost.color = BLACK;
+     BeginDrawing();
+     ClearBackground(RAYWHITE);
+     for(int i = 0 ; i<=rows; i++ ){
+        for(int j = 0; j<=cols; j++){
+           if(Citymap[i][j] == 1){
+           DrawRectangle(i*tilesize,j*tilesize, 50,50, BLACK);
+           DrawRectangleLines(i*tilesize,j*tilesize, 50,50, RED);
+           }
+           if(Citymap[i][j] == 0){
+           DrawRectangle(i*tilesize,j*tilesize, 50,50, BROWN);
+           DrawRectangleLines(i*tilesize,j*tilesize, 50,50, RED);
+           }
+           if(Citymap[i][j] == 2){
+           DrawRectangle(i*tilesize,j*tilesize, 50,50, BLUE);
+           DrawRectangleLines(i*tilesize,j*tilesize, 50,50, RED);
+           }
         }
-        if(ghost.position.x<=0){
-        ghost.position.x = 0;
-        ghost.direction.x *= -1;
-        ghost.color = YELLOW;
-        }
-        if(ghost.position.y + boxsize>=500){
-        ghost.position. y= 500-boxsize;
-        ghost.direction.y *= -1;
-        ghost.color = BROWN;
-        }
-        if(ghost.position.y<=0){
-        ghost.position.y = 0;
-        ghost.direction.y *= -1;
-        ghost.color = BLUE;
-        }
+     }
 
-        EndDrawing();
+
+
+    if( IsKeyDown(KEY_A)|| IsKeyDown(KEY_LEFT)){
+        player.x -= speed*dt;
     }
+    if( IsKeyDown(KEY_D)|| IsKeyDown(KEY_RIGHT)){
+        player.x += speed*dt;
+    }
+    if( IsKeyDown(KEY_W)|| IsKeyDown(KEY_UP)){ 
+        player.y -= speed*dt; 
+    }
+    if( IsKeyDown(KEY_S)|| IsKeyDown(KEY_DOWN)){
+        player.y += speed*dt;
+    }
+
+    int tilex = player.x/tilesize;
+    int tiley = player.y/tilesize;
+
+    int tiletype = Citymap[tilex][tiley];
+
+    if(tiletype == 0){
+     speed = 100.0f;
+    }
+    else{
+        speed = 200.0f;
+    }
+
+    DrawRectangle(player.x, player.y,50, 50, RED);
+
+    EndDrawing();
+    }
+    CloseAudioDevice();
     CloseWindow();
 }
-
